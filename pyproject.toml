@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "argos"
+version = "0.1.0"
+description = "Argos - Global Financial Intelligence Terminal"
+requires-python = ">=3.10"
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+select = ["E", "F", "I", "N", "W"]
+
+[tool.ruff.isort]
+known-first-party = ["shared", "app"]
+
+[tool.pytest.ini_options]
+testpaths = ["backend/tests", "ingestion/tests"]
+asyncio_mode = "auto"

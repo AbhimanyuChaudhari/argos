@@ -1,0 +1,36 @@
+services:
+  postgres:
+    image: timescale/timescaledb:latest-pg16
+    container_name: argos_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: argos
+      POSTGRES_PASSWORD: argos_password
+      POSTGRES_DB: argos_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - argos_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U argos -d argos_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: argos_redis
+    restart: unless-stopped
+    ports:
+      - "6381:6379"
+    volumes:
+      - argos_redis_data:/data
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  argos_postgres_data:
+  argos_redis_data:
