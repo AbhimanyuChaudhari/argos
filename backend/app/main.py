@@ -11,6 +11,8 @@ from app.api.v1.routers.government import (
     lobbying,
 )
 
+from app.api.v1.routers.market import market_router
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -76,5 +78,9 @@ app.include_router(
 )
 app.include_router(
     lobbying.router,
+    prefix=settings.API_V1_PREFIX,
+)
+app.include_router(
+    market_router.router,
     prefix=settings.API_V1_PREFIX,
 )

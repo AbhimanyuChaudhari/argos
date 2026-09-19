@@ -52,6 +52,12 @@ class Settings(BaseSettings):
     OPENSECRETS_BASE_URL: str = "https://www.opensecrets.org/api"
     OPENSECRETS_API_KEY: str = ""
 
+    # Alpaca Market Data
+    ALPACA_API_KEY: str = ""
+    ALPACA_SECRET_KEY: str = ""
+    ALPACA_BASE_URL: str = "https://paper-api.alpaca.markets/v2"
+    ALPACA_DATA_URL: str = "https://data.alpaca.markets"
+
     # AWS
     AWS_REGION: str = "us-east-1"
     AWS_ACCESS_KEY_ID: str = ""
