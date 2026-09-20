@@ -190,3 +190,79 @@ export const getBars = async (params: {
         trade_count: number;
     }>;
 };
+
+// Add these to the bottom of frontend/lib/api.ts
+
+export interface FundamentalsSummary {
+    id: number;
+    ticker: string;
+    cik: string;
+    period_end: string;
+    period_type: string;
+    form: string;
+    filed_at: string;
+    revenue: number | null;
+    gross_profit: number | null;
+    gross_margin: number | null;
+    operating_income: number | null;
+    operating_margin: number | null;
+    net_income: number | null;
+    net_margin: number | null;
+    ebitda: number | null;
+    ebitda_margin: number | null;
+    eps_basic: number | null;
+    eps_diluted: number | null;
+    shares_outstanding: number | null;
+    total_assets: number | null;
+    total_liabilities: number | null;
+    total_equity: number | null;
+    cash: number | null;
+    total_debt: number | null;
+    net_debt: number | null;
+    operating_cash_flow: number | null;
+    capex: number | null;
+    free_cash_flow: number | null;
+    depreciation: number | null;
+    debt_to_equity: number | null;
+    current_ratio: number | null;
+    roe: number | null;
+    roic: number | null;
+    parsed_by: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export const getFundamentalsSummary = async (ticker: string): Promise<FundamentalsSummary> => {
+    const { data } = await api.get(`/fundamentals/${ticker}/summary`);
+    return data;
+};
+
+export const getIncomeStatement = async (params: {
+    ticker: string;
+    period_type?: string;
+    limit?: number;
+}): Promise<FundamentalsSummary[]> => {
+    const { ticker, ...rest } = params;
+    const { data } = await api.get(`/fundamentals/${ticker}/income-statement`, { params: rest });
+    return data;
+};
+
+export const getBalanceSheet = async (params: {
+    ticker: string;
+    period_type?: string;
+    limit?: number;
+}): Promise<FundamentalsSummary[]> => {
+    const { ticker, ...rest } = params;
+    const { data } = await api.get(`/fundamentals/${ticker}/balance-sheet`, { params: rest });
+    return data;
+};
+
+export const getCashFlow = async (params: {
+    ticker: string;
+    period_type?: string;
+    limit?: number;
+}): Promise<FundamentalsSummary[]> => {
+    const { ticker, ...rest } = params;
+    const { data } = await api.get(`/fundamentals/${ticker}/cash-flow`, { params: rest });
+    return data;
+};

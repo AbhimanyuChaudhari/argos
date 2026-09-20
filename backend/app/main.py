@@ -12,6 +12,7 @@ from app.api.v1.routers.government import (
 )
 
 from app.api.v1.routers.market import market_router
+from app.api.v1.routers.fundamentals import fundamentals
 
 
 @asynccontextmanager
@@ -82,5 +83,9 @@ app.include_router(
 )
 app.include_router(
     market_router.router,
+    prefix=settings.API_V1_PREFIX,
+)
+app.include_router(
+    fundamentals.router,
     prefix=settings.API_V1_PREFIX,
 )
