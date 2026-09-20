@@ -161,3 +161,32 @@ export const getLobbying = async (params?: {
     const { data } = await api.get("/lobbying/", { params });
     return data;
 };
+
+// Add these to the bottom of lib/api.ts
+
+export const getSnapshot = async (params: { ticker: string }) => {
+    const { data } = await api.get(`/market/snapshot/${params.ticker}`);
+    return data;
+};
+
+export const getBars = async (params: {
+    ticker: string;
+    timeframe?: string;
+    start?: string;
+    end?: string;
+    limit?: number;
+}) => {
+    const { ticker, ...rest } = params;
+    const { data } = await api.get(`/market/bars/${ticker}`, { params: rest });
+    return data as Array<{
+        ticker: string;
+        timestamp: string;
+        open: number;
+        high: number;
+        low: number;
+        close: number;
+        volume: number;
+        vwap: number;
+        trade_count: number;
+    }>;
+};

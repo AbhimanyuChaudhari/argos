@@ -9,6 +9,7 @@ from alembic import context
 
 from app.db.base import Base
 from app.models.government import filing, bill, contract, lobbying  # noqa: F401
+from app.models.fundamentals import facts, summary, errors
 
 config = context.config
 
