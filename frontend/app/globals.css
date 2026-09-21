@@ -1,33 +1,373 @@
 @import "tailwindcss";
 
-:root {
-  --background: 0 0% 8%;
-  --foreground: 0 0% 98%;
-  --card: 0 0% 10%;
-  --card-foreground: 0 0% 98%;
-  --popover: 0 0% 10%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 199 89% 48%;
-  --primary-foreground: 0 0% 8%;
-  --secondary: 0 0% 15%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 0 0% 15%;
-  --muted-foreground: 0 0% 60%;
-  --accent: 0 0% 15%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 72% 51%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 15%;
-  --input: 0 0% 15%;
-  --ring: 199 89% 48%;
-  --radius: 0.5rem;
+@theme {
+  /* Argos color system — deep navy, not pure black */
+  --color-background: #080d14;
+  --color-surface: #0d1520;
+  --color-surface-2: #111c2a;
+  --color-surface-3: #162032;
+  --color-border: #1a2840;
+  --color-border-subtle: #111c2a;
+
+  /* Text */
+  --color-foreground: #e8eef5;
+  --color-foreground-muted: #4a6080;
+  --color-foreground-dim: #2a3d55;
+
+  /* Accent — electric blue */
+  --color-primary: #2563eb;
+  --color-primary-light: #3b82f6;
+  --color-primary-glow: rgba(37, 99, 235, 0.15);
+
+  /* Semantic */
+  --color-up: #10b981;
+  --color-up-dim: rgba(16, 185, 129, 0.1);
+  --color-down: #f43f5e;
+  --color-down-dim: rgba(244, 63, 94, 0.1);
+  --color-warn: #f59e0b;
+  --color-warn-dim: rgba(245, 158, 11, 0.1);
+
+  /* Shadcn compat */
+  --color-card: #0d1520;
+  --color-card-foreground: #e8eef5;
+  --color-muted: #111c2a;
+  --color-muted-foreground: #4a6080;
+  --color-accent: #162032;
+  --color-accent-foreground: #e8eef5;
+  --color-destructive: #f43f5e;
+  --color-destructive-foreground: #ffffff;
+  --color-popover: #0d1520;
+  --color-popover-foreground: #e8eef5;
+  --color-input: #0d1520;
+  --color-secondary: #111c2a;
+  --color-secondary-foreground: #8aa4c0;
+
+  --font-mono: "JetBrains Mono", "Fira Code", "Cascadia Code", ui-monospace, monospace;
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
 }
 
-* {
-  border-color: hsl(var(--border));
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-color: #1a2840;
+}
+
+html {
+  color-scheme: dark;
 }
 
 body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
+  background: #080d14;
+  color: #e8eef5;
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1a2840;
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #243552;
+}
+
+/* ── Argos panel ── */
+.ag-panel {
+  background: #0d1520;
+  border: 1px solid #1a2840;
+}
+
+.ag-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: #080d14;
+  border-bottom: 1px solid #1a2840;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #4a6080;
+  text-transform: uppercase;
+}
+
+.ag-panel-header::before {
+  content: '';
+  width: 2px;
+  height: 10px;
+  background: #2563eb;
+  border-radius: 1px;
+  flex-shrink: 0;
+}
+
+/* ── Argos table ── */
+.ag-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.ag-table th {
+  padding: 5px 14px;
+  text-align: left;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #2a3d55;
+  text-transform: uppercase;
+  background: #080d14;
+  border-bottom: 1px solid #1a2840;
+  white-space: nowrap;
+}
+
+.ag-table th.r {
+  text-align: right;
+}
+
+.ag-table td {
+  padding: 7px 14px;
+  border-bottom: 1px solid #0d1520;
+  color: #e8eef5;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ag-table td.r {
+  text-align: right;
+}
+
+.ag-table td.dim {
+  color: #4a6080;
+}
+
+.ag-table tr:hover td {
+  background: #0d1520;
+}
+
+.ag-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Argos tabs ── */
+.ag-tabs {
+  display: flex;
+  background: #080d14;
+  border-bottom: 1px solid #1a2840;
+  overflow-x: auto;
+}
+
+.ag-tab {
+  padding: 8px 18px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #2a3d55;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  background: transparent;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+
+.ag-tab:hover {
+  color: #8aa4c0;
+  background: #0d1520;
+}
+
+.ag-tab.active {
+  color: #3b82f6;
+  border-bottom-color: #2563eb;
+  background: #0d1520;
+}
+
+/* ── Argos stat ── */
+.ag-stat-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #2a3d55;
+}
+
+.ag-stat-value {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  color: #e8eef5;
+}
+
+/* ── Colors ── */
+.c-up {
+  color: #10b981;
+}
+
+.c-down {
+  color: #f43f5e;
+}
+
+.c-warn {
+  color: #f59e0b;
+}
+
+.c-dim {
+  color: #4a6080;
+}
+
+.c-blue {
+  color: #3b82f6;
+}
+
+/* ── Badge ── */
+.ag-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  border-radius: 2px;
+  letter-spacing: 0.05em;
+}
+
+/* ── Skeleton ── */
+@keyframes ag-shimmer {
+  0% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+
+  100% {
+    opacity: 0.4;
+  }
+}
+
+.ag-skeleton {
+  background: #1a2840;
+  border-radius: 2px;
+  animation: ag-shimmer 1.8s ease infinite;
+  display: inline-block;
+}
+
+/* ── Glow effects ── */
+.ag-glow-up {
+  text-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
+}
+
+.ag-glow-down {
+  text-shadow: 0 0 16px rgba(244, 63, 94, 0.4);
+}
+
+.ag-glow-blue {
+  text-shadow: 0 0 16px rgba(59, 130, 246, 0.4);
+}
+
+/* ── Input ── */
+.ag-input {
+  background: #080d14;
+  border: 1px solid #1a2840;
+  color: #e8eef5;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 7px 10px;
+  border-radius: 3px;
+  outline: none;
+  transition: border-color 0.15s;
+  width: 100%;
+}
+
+.ag-input::placeholder {
+  color: #2a3d55;
+}
+
+.ag-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
+}
+
+/* ── Button ── */
+.ag-btn {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 7px 16px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid;
+}
+
+.ag-btn-primary {
+  background: rgba(37, 99, 235, 0.12);
+  border-color: rgba(37, 99, 235, 0.4);
+  color: #3b82f6;
+}
+
+.ag-btn-primary:hover {
+  background: rgba(37, 99, 235, 0.2);
+  border-color: #2563eb;
+  box-shadow: 0 0 12px rgba(37, 99, 235, 0.2);
+}
+
+/* ── Status dot ── */
+.ag-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.ag-dot-up {
+  background: #10b981;
+  box-shadow: 0 0 4px rgba(16, 185, 129, 0.6);
+}
+
+.ag-dot-down {
+  background: #f43f5e;
+}
+
+.ag-dot-warn {
+  background: #f59e0b;
+}
+
+.ag-dot-dim {
+  background: #2a3d55;
+}
+
+/* ── YoY badge ── */
+.yoy-up {
+  color: #10b981;
+  font-size: 9px;
+  font-family: var(--font-mono);
+}
+
+.yoy-down {
+  color: #f43f5e;
+  font-size: 9px;
+  font-family: var(--font-mono);
 }

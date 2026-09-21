@@ -3,49 +3,33 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getFilings } from "@/lib/api";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { ExternalLink, Search } from "lucide-react";
 
-const FILING_TYPES = ["10-K", "10-Q", "8-K", "8-K/A", "S-1", "4", "DEF 14A"];
+const FILING_TYPES = ["10-K", "10-Q", "8-K", "8-K/A", "S-1", "4", "DEF 14A", "SC 13G", "SC 13D"];
 
-function formatDate(dateStr: string) {
-    return new Date(dateStr).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-    });
+const TYPE_STYLE: Record<string, { bg: string; color: string; border: string }> = {
+    "10-K": { bg: "rgba(59,130,246,0.08)", color: "#3b82f6", border: "rgba(59,130,246,0.25)" },
+    "10-Q": { bg: "rgba(99,102,241,0.08)", color: "#818cf8", border: "rgba(99,102,241,0.25)" },
+    "8-K": { bg: "rgba(245,158,11,0.08)", color: "#f59e0b", border: "rgba(245,158,11,0.25)" },
+    "8-K/A": { bg: "rgba(245,158,11,0.06)", color: "#d97706", border: "rgba(245,158,11,0.2)" },
+    "S-1": { bg: "rgba(16,185,129,0.08)", color: "#10b981", border: "rgba(16,185,129,0.25)" },
+    "4": { bg: "rgba(168,85,247,0.08)", color: "#a855f7", border: "rgba(168,85,247,0.25)" },
+    "DEF 14A": { bg: "rgba(236,72,153,0.08)", color: "#ec4899", border: "rgba(236,72,153,0.25)" },
+};
+
+function fDate(s: string | null | undefined) {
+    if (!s) return "—";
+    return new Date(s).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 }
 
-function FilingTypeBadge({ type }: { type: string }) {
-    const colors: Record<string, string> = {
-        "10-K": "bg-blue-500/20 text-blue-400 border-blue-500/30",
-        "10-Q": "bg-indigo-500/20 text-indigo-400 border-indigo-500/30",
-        "8-K": "bg-amber-500/20 text-amber-400 border-amber-500/30",
-        "8-K/A": "bg-orange-500/20 text-orange-400 border-orange-500/30",
-        "S-1": "bg-green-500/20 text-green-400 border-green-500/30",
-        "4": "bg-purple-500/20 text-purple-400 border-purple-500/30",
-    };
-    const colorClass = colors[type] || "bg-muted text-muted-foreground";
+function FilingBadge({ type }: { type: string }) {
+    const s = TYPE_STYLE[type] ?? { bg: "rgba(74,96,128,0.1)", color: "#4a6080", border: "rgba(74,96,128,0.2)" };
     return (
-        <span
-            className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-mono border ${colorClass}`}
-        >
+        <span style={{
+            display: "inline-flex", alignItems: "center",
+            padding: "2px 7px", borderRadius: 2,
+            fontFamily: "JetBrains Mono, monospace", fontSize: 9, fontWeight: 700, letterSpacing: "0.06em",
+            background: s.bg, color: s.color, border: `1px solid ${s.border}`,
+        }}>
             {type}
         </span>
     );
@@ -58,12 +42,10 @@ export default function FilingsPage() {
 
     const { data, isLoading, error } = useQuery({
         queryKey: ["filings", filingType, page],
-        queryFn: () =>
-            getFilings({
-                filing_type: filingType === "all" ? undefined : filingType,
-                page,
-                page_size: 20,
-            }),
+        queryFn: () => getFilings({
+            filing_type: filingType === "all" ? undefined : filingType,
+            page, page_size: 25,
+        }),
     });
 
     const filtered = data?.items.filter((f) =>
@@ -74,161 +56,221 @@ export default function FilingsPage() {
     );
 
     return (
-        <div className="p-6 space-y-4">
-            <div className="space-y-1">
-                <h1 className="text-2xl font-bold tracking-tight">SEC Filings</h1>
-                <p className="text-sm text-muted-foreground">
-                    EDGAR filings for all US public companies
-                </p>
-            </div>
+        <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden", background: "#080d14" }}>
 
-            <div className="flex gap-3">
-                <div className="relative flex-1 max-w-sm">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Search company or ticker..."
-                        className="pl-9"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                    />
+            {/* ── Header ── */}
+            <div style={{ padding: "14px 20px", borderBottom: "1px solid #1a2840", background: "#080d14", flexShrink: 0 }}>
+                <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+                    <div>
+                        <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#2a3d55", letterSpacing: "0.12em", marginBottom: 4 }}>
+                            GOVERNMENT · EDGAR
+                        </div>
+                        <h1 style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 18, fontWeight: 700, color: "#e8eef5", margin: 0, letterSpacing: "0.05em" }}>
+                            SEC FILINGS
+                        </h1>
+                    </div>
+                    {data && (
+                        <div style={{ textAlign: "right" }}>
+                            <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 20, fontWeight: 700, color: "#3b82f6" }}>
+                                {data.total.toLocaleString()}
+                            </div>
+                            <div style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 9, color: "#2a3d55", letterSpacing: "0.1em" }}>TOTAL FILINGS</div>
+                        </div>
+                    )}
                 </div>
-                <Select
-                    value={filingType}
-                    onValueChange={(v: string | null) => {
-                        if (!v) return;
-                        setFilingType(v);
-                        setPage(1);
-                    }}
-                >
-                    <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Filing type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All types</SelectItem>
+
+                {/* Controls */}
+                <div style={{ display: "flex", gap: 10, marginTop: 14, alignItems: "center" }}>
+                    {/* Search */}
+                    <div style={{ position: "relative", flex: 1, maxWidth: 320 }}>
+                        <input
+                            className="ag-input"
+                            type="text"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="Search company or ticker..."
+                            style={{ paddingLeft: 10 }}
+                        />
+                    </div>
+
+                    {/* Type filter */}
+                    <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                        <button
+                            onClick={() => { setFilingType("all"); setPage(1); }}
+                            style={{
+                                fontFamily: "JetBrains Mono, monospace", fontSize: 9, fontWeight: 700, letterSpacing: "0.06em",
+                                padding: "4px 10px", borderRadius: 2, cursor: "pointer", transition: "all 0.15s",
+                                background: filingType === "all" ? "rgba(37,99,235,0.15)" : "rgba(37,99,235,0.04)",
+                                color: filingType === "all" ? "#3b82f6" : "#2a3d55",
+                                border: filingType === "all" ? "1px solid rgba(37,99,235,0.4)" : "1px solid #1a2840",
+                            }}
+                        >
+                            ALL
+                        </button>
                         {FILING_TYPES.map((t) => (
-                            <SelectItem key={t} value={t}>
+                            <button
+                                key={t}
+                                onClick={() => { setFilingType(t); setPage(1); }}
+                                style={{
+                                    fontFamily: "JetBrains Mono, monospace", fontSize: 9, fontWeight: 700, letterSpacing: "0.06em",
+                                    padding: "4px 10px", borderRadius: 2, cursor: "pointer", transition: "all 0.15s",
+                                    background: filingType === t ? (TYPE_STYLE[t]?.bg ?? "rgba(37,99,235,0.1)") : "rgba(37,99,235,0.02)",
+                                    color: filingType === t ? (TYPE_STYLE[t]?.color ?? "#3b82f6") : "#2a3d55",
+                                    border: filingType === t ? `1px solid ${TYPE_STYLE[t]?.border ?? "rgba(37,99,235,0.3)"}` : "1px solid #1a2840",
+                                }}
+                            >
                                 {t}
-                            </SelectItem>
+                            </button>
                         ))}
-                    </SelectContent>
-                </Select>
+                    </div>
+                </div>
             </div>
 
-            <div className="text-sm text-muted-foreground">
-                {data ? `${data.total} filings` : "Loading..."}
-            </div>
-
-            <Card>
-                <CardContent className="p-0">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Company</TableHead>
-                                <TableHead>Type</TableHead>
-                                <TableHead>Filed</TableHead>
-                                <TableHead>Period</TableHead>
-                                <TableHead>Items</TableHead>
-                                <TableHead></TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {isLoading && (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={6}
-                                        className="text-center text-muted-foreground py-8"
-                                    >
-                                        Loading filings...
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                            {error && (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={6}
-                                        className="text-center text-destructive py-8"
-                                    >
-                                        Failed to load. Is the backend running on port 8001?
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                            {filtered?.map((filing) => (
-                                <TableRow key={filing.id} className="hover:bg-muted/50">
-                                    <TableCell>
-                                        <div>
-                                            <p className="font-medium text-sm">
-                                                {filing.company_name?.split("(")[0].trim() ?? "Unknown"}
-                                            </p>
-                                            {filing.ticker && (
-                                                <p className="text-xs text-muted-foreground font-mono">
-                                                    {filing.ticker}
-                                                </p>
-                                            )}
+            {/* ── Table ── */}
+            <div style={{ flex: 1, overflowY: "auto" }}>
+                <table className="ag-table" style={{ width: "100%" }}>
+                    <thead style={{ position: "sticky", top: 0, zIndex: 10 }}>
+                        <tr>
+                            <th style={{ width: 80 }}>TYPE</th>
+                            <th>COMPANY</th>
+                            <th>TICKER</th>
+                            <th>FILED</th>
+                            <th>PERIOD</th>
+                            <th>ITEMS</th>
+                            <th style={{ width: 60 }}>LINK</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {isLoading && (
+                            [...Array(15)].map((_, i) => (
+                                <tr key={i} style={{ borderBottom: "1px solid #0d1520" }}>
+                                    {[80, 200, 60, 100, 100, 120, 50].map((w, j) => (
+                                        <td key={j} style={{ padding: "8px 14px" }}>
+                                            <span className="ag-skeleton" style={{ width: w * 0.6, height: 10 }} />
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))
+                        )}
+                        {error && (
+                            <tr>
+                                <td colSpan={7} style={{ padding: "40px 14px", textAlign: "center", fontFamily: "JetBrains Mono, monospace", fontSize: 11, color: "#f43f5e" }}>
+                                    BACKEND UNAVAILABLE — IS THE API RUNNING ON PORT 8001?
+                                </td>
+                            </tr>
+                        )}
+                        {filtered?.map((f) => (
+                            <tr
+                                key={f.id}
+                                style={{ borderBottom: "1px solid #0d1520", transition: "background 0.1s", cursor: "default" }}
+                                onMouseEnter={(e) => (e.currentTarget.style.background = "#0d1520")}
+                                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                            >
+                                <td style={{ padding: "7px 14px" }}>
+                                    <FilingBadge type={f.filing_type} />
+                                </td>
+                                <td style={{ padding: "7px 14px" }}>
+                                    <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 11, color: "#e8eef5" }}>
+                                        {f.company_name?.split("(")[0].trim() ?? "—"}
+                                    </span>
+                                </td>
+                                <td style={{ padding: "7px 14px" }}>
+                                    {f.ticker && (
+                                        <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, fontWeight: 700, color: "#3b82f6" }}>
+                                            {f.ticker}
+                                        </span>
+                                    )}
+                                </td>
+                                <td style={{ padding: "7px 14px" }}>
+                                    <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#4a6080" }}>
+                                        {fDate(f.filed_at)}
+                                    </span>
+                                </td>
+                                <td style={{ padding: "7px 14px" }}>
+                                    <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#4a6080" }}>
+                                        {f.period_of_report ? fDate(f.period_of_report) : "—"}
+                                    </span>
+                                </td>
+                                <td style={{ padding: "7px 14px" }}>
+                                    {f.items && f.items.length > 0 && (
+                                        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                                            {f.items.slice(0, 3).map((item) => (
+                                                <span key={item} style={{
+                                                    fontFamily: "JetBrains Mono, monospace", fontSize: 9,
+                                                    background: "#111c2a", color: "#4a6080",
+                                                    border: "1px solid #1a2840", padding: "1px 5px", borderRadius: 2,
+                                                }}>
+                                                    {item}
+                                                </span>
+                                            ))}
                                         </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <FilingTypeBadge type={filing.filing_type} />
-                                    </TableCell>
-                                    <TableCell className="text-sm text-muted-foreground font-mono">
-                                        {formatDate(filing.filed_at)}
-                                    </TableCell>
-                                    <TableCell className="text-sm text-muted-foreground font-mono">
-                                        {filing.period_of_report
-                                            ? formatDate(filing.period_of_report)
-                                            : "—"}
-                                    </TableCell>
-                                    <TableCell>
-                                        {filing.items && filing.items.length > 0 && (
-                                            <div className="flex gap-1 flex-wrap">
-                                                {filing.items.slice(0, 3).map((item) => (
-                                                    <span
-                                                        key={item}
-                                                        className="text-xs font-mono bg-muted px-1.5 py-0.5 rounded"
-                                                    >
-                                                        {item}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </TableCell>
-                                    <TableCell>
-                                        {filing.url && (
-                                            <a
-                                                href={filing.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-muted-foreground hover:text-primary transition-colors"
-                                            >
-                                                <ExternalLink className="w-4 h-4" />
-                                            </a>
-                                        )}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-            </Card>
+                                    )}
+                                </td>
+                                <td style={{ padding: "7px 14px" }}>
+                                    {f.url && (
+                                        <button
+                                            onClick={() => window.open(f.url!, "_blank")}
+                                            style={{
+                                                fontFamily: "JetBrains Mono, monospace", fontSize: 9, fontWeight: 700,
+                                                color: "#2a3d55", background: "none", border: "none", cursor: "pointer",
+                                                letterSpacing: "0.06em", transition: "color 0.15s",
+                                            }}
+                                            onMouseEnter={(e) => (e.currentTarget.style.color = "#3b82f6")}
+                                            onMouseLeave={(e) => (e.currentTarget.style.color = "#2a3d55")}
+                                        >
+                                            VIEW →
+                                        </button>
+                                    )}
+                                </td>
+                            </tr>
+                        ))}
+                        {filtered?.length === 0 && !isLoading && (
+                            <tr>
+                                <td colSpan={7} style={{ padding: "40px 14px", textAlign: "center", fontFamily: "JetBrains Mono, monospace", fontSize: 11, color: "#2a3d55" }}>
+                                    NO FILINGS FOUND
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
+            {/* ── Pagination ── */}
             {data && (
-                <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>
-                        Page {data.page} — showing {filtered?.length ?? 0} of {data.total}
+                <div style={{
+                    display: "flex", alignItems: "center", justifyContent: "space-between",
+                    padding: "8px 20px", borderTop: "1px solid #1a2840", background: "#080d14", flexShrink: 0,
+                }}>
+                    <span style={{ fontFamily: "JetBrains Mono, monospace", fontSize: 10, color: "#2a3d55" }}>
+                        PAGE {data.page} · SHOWING {filtered?.length ?? 0} OF {data.total.toLocaleString()} FILINGS
                     </span>
-                    <div className="flex gap-2">
+                    <div style={{ display: "flex", gap: 6 }}>
                         <button
                             onClick={() => setPage((p) => Math.max(1, p - 1))}
                             disabled={page === 1}
-                            className="px-3 py-1 rounded border border-border hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{
+                                fontFamily: "JetBrains Mono, monospace", fontSize: 9, fontWeight: 700, letterSpacing: "0.08em",
+                                padding: "5px 14px", borderRadius: 2, cursor: page === 1 ? "not-allowed" : "pointer",
+                                background: "transparent", color: page === 1 ? "#1a2840" : "#4a6080",
+                                border: `1px solid ${page === 1 ? "#111c2a" : "#1a2840"}`,
+                                transition: "all 0.15s",
+                            }}
                         >
-                            Previous
+                            ← PREV
                         </button>
                         <button
                             onClick={() => setPage((p) => p + 1)}
                             disabled={!data.has_more}
-                            className="px-3 py-1 rounded border border-border hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed"
+                            style={{
+                                fontFamily: "JetBrains Mono, monospace", fontSize: 9, fontWeight: 700, letterSpacing: "0.08em",
+                                padding: "5px 14px", borderRadius: 2, cursor: !data.has_more ? "not-allowed" : "pointer",
+                                background: data.has_more ? "rgba(37,99,235,0.08)" : "transparent",
+                                color: data.has_more ? "#3b82f6" : "#1a2840",
+                                border: `1px solid ${data.has_more ? "rgba(37,99,235,0.3)" : "#111c2a"}`,
+                                transition: "all 0.15s",
+                            }}
                         >
-                            Next
+                            NEXT →
                         </button>
                     </div>
                 </div>
